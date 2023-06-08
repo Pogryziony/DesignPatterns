@@ -1,14 +1,18 @@
 import patterns.adapter.ClassTextFile;
+import patterns.adapter.ObjectTextFile;
 import patterns.component.Chapter;
 import patterns.composite.File;
 import patterns.composite.FileSystemClient;
 import patterns.composite.Folder;
 import patterns.decorator.*;
-import patterns.decorator.TextComponent;
-import patterns.adapter.ClassTextFile;
-import patterns.adapter.ObjectTextFile;
-import java.awt.*;
+import patterns.factoryMethod.*;
+import patterns.simpleFactory.Tag;
+import patterns.simpleFactory.TagFactory;
+import patterns.factoryMethod.TagMethod;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -19,7 +23,8 @@ public class Main {
 //        runComponent();
 //        runDecorator();
 //        runClassAdapter();
-        runObjectAdapter();
+//        runObjectAdapter();
+        runSimpleFactory();
     }
 
     public static void runDecorator() {
@@ -40,20 +45,11 @@ public class Main {
         String[] choices = input.split(" ");
         for (String choice : choices) {
             switch (choice) {
-                case "1":
-                    decorators.add(new ParagraphDecorator(null));
-                    break;
-                case "2":
-                    decorators.add(new StrongDecorator(null));
-                    break;
-                case "3":
-                    decorators.add(new EmphasisDecorator(null));
-                    break;
-                case "4":
-                    decorators.add(new MarkDecorator(null));
-                    break;
-                default:
-                    System.out.println("Nieprawidłowy wybór: " + choice);
+                case "1" -> decorators.add(new ParagraphDecorator(null));
+                case "2" -> decorators.add(new StrongDecorator(null));
+                case "3" -> decorators.add(new EmphasisDecorator(null));
+                case "4" -> decorators.add(new MarkDecorator(null));
+                default -> System.out.println("Nieprawidłowy wybór: " + choice);
             }
         }
 
@@ -142,7 +138,8 @@ public class Main {
         client.runCommand("cd ..");
         client.runCommand("dir");
     }
-    public static void runObjectAdapter(){
+
+    public static void runObjectAdapter() {
         String filePath = "example.txt";
 
         try {
@@ -164,6 +161,7 @@ public class Main {
             System.out.println("Wystąpił błąd podczas operacji na pliku: " + e.getMessage());
         }
     }
+
     public static void runClassAdapter() {
         String filePath = "example.txt";
 
@@ -188,5 +186,49 @@ public class Main {
         } catch (IOException e) {
             System.out.println("Wystąpił błąd podczas operacji na pliku: " + e.getMessage());
         }
+    }
+
+    public static void runSimpleFactory() {
+        String text = getUserInput("Enter text: ");
+        String tag = getUserInput("Select a tag (strong, p, em, mark): ");
+
+        Tag selectedTag = TagFactory.createTag(tag);
+
+        String output = selectedTag.getStartTag() + text + selectedTag.getEndTag();
+        System.out.println("Output:");
+        System.out.println(output);
+    }
+
+    private static String getUserInput(String prompt) {
+        System.out.print(prompt);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            return reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private static void runFactoryMethod() {
+        String text = getUserInput("Enter text: ");
+        String tag = getUserInput("Select a tag (strong, p, em, mark): ");
+
+        TagFactoryMethod tagFactory = createTagFactory(tag);
+        TagMethod selectedTag = tagFactory.createTag();
+
+        String output = selectedTag.getStartTag() + text + selectedTag.getEndTag();
+        System.out.println("Output:");
+        System.out.println(output);
+    }
+
+    private static TagFactoryMethod createTagFactory(String tag) {
+        return switch (tag.toLowerCase()) {
+            case "strong" -> new StrongTagFactoryMethod();
+            case "p" -> new ParagraphTagFactoryMethod();
+            case "em" -> new EmphasisTagFactoryMethod();
+            case "mark" -> new MarkTagFactoryMethod();
+            default -> throw new IllegalArgumentException("Invalid tag: " + tag);
+        };
     }
 }
