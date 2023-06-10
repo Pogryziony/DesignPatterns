@@ -13,15 +13,15 @@ import patterns.observer.TemperatureSensor;
 import patterns.simpleFactory.Tag;
 import patterns.simpleFactory.TagFactory;
 import patterns.factoryMethod.TagMethod;
+import patterns.strategy.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
+
     public static void main(String[] args) {
 //       runComposite();
 //       runComponent();
@@ -30,6 +30,7 @@ public class Main {
 //       runObjectAdapter();
 //       runSimpleFactory();
 //       runObserver();
+         runStrategy();
     }
 
     public static void runDecorator() {
@@ -250,5 +251,64 @@ public class Main {
 
         // Ustawienie nowej temperatury
         sensor.setTemperature(25.5);
+    }
+
+    private static final int ARRAY_SIZE_SMALL = 50;
+    private static final int ARRAY_SIZE_MEDIUM = 500;
+    private static final int ARRAY_SIZE_LARGE = 5000;
+    private static final int NUM_SORT_RUNS = 10;
+
+    public static void runStrategy() {
+        int[] arraySmall = generateRandomArray(ARRAY_SIZE_SMALL);
+        int[] arrayMedium = generateRandomArray(ARRAY_SIZE_MEDIUM);
+        int[] arrayLarge = generateRandomArray(ARRAY_SIZE_LARGE);
+
+        SortStrategy bubbleSort = new BubbleSort();
+        SortStrategy selectionSort = new SelectionSort();
+        SortStrategy quickSort = new QuickSort();
+
+        ArraySorter sorter = new ArraySorter(bubbleSort);
+        measureAndPrintAverageSortingTime(sorter, arraySmall, "Bubble Sort (Small Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayMedium, "Bubble Sort (Medium Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayLarge, "Bubble Sort (Large Array)");
+
+        sorter.setSortStrategy(selectionSort);
+        measureAndPrintAverageSortingTime(sorter, arraySmall, "Selection Sort (Small Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayMedium, "Selection Sort (Medium Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayLarge, "Selection Sort (Large Array)");
+
+        sorter.setSortStrategy(quickSort);
+        measureAndPrintAverageSortingTime(sorter, arraySmall, "Quick Sort (Small Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayMedium, "Quick Sort (Medium Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayLarge, "Quick Sort (Large Array)");
+
+        Arrays.sort(arraySmall);
+        Arrays.sort(arrayMedium);
+        Arrays.sort(arrayLarge);
+        measureAndPrintAverageSortingTime(sorter, arraySmall, "Arrays.sort() (Small Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayMedium, "Arrays.sort() (Medium Array)");
+        measureAndPrintAverageSortingTime(sorter, arrayLarge, "Arrays.sort() (Large Array)");
+    }
+
+    private static int[] generateRandomArray(int size) {
+        int[] array = new int[size];
+        Random random = new Random();
+        for (int i = 0; i < size; i++) {
+            array[i] = random.nextInt(100);
+        }
+        return array;
+    }
+
+    private static void measureAndPrintAverageSortingTime(ArraySorter sorter, int[] array, String methodName) {
+        long totalTime = 0;
+        for (int i = 0; i < NUM_SORT_RUNS; i++) {
+            int[] copyArray = Arrays.copyOf(array, array.length);
+            long startTime = System.nanoTime();
+            sorter.sortArray(copyArray);
+            long endTime = System.nanoTime();
+            totalTime += (endTime - startTime);
+        }
+        double averageTime = (double) totalTime / NUM_SORT_RUNS;
+        System.out.println(methodName + ": Average Sorting Time = " + averageTime + " ns");
     }
 }
