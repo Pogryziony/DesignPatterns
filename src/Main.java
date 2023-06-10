@@ -6,6 +6,10 @@ import patterns.composite.FileSystemClient;
 import patterns.composite.Folder;
 import patterns.decorator.*;
 import patterns.factoryMethod.*;
+import patterns.observer.CelsiusDisplay;
+import patterns.observer.FahrenheitDisplay;
+import patterns.observer.KelvinDisplay;
+import patterns.observer.TemperatureSensor;
 import patterns.simpleFactory.Tag;
 import patterns.simpleFactory.TagFactory;
 import patterns.factoryMethod.TagMethod;
@@ -20,11 +24,12 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 //       runComposite();
-//        runComponent();
-//        runDecorator();
-//        runClassAdapter();
-//        runObjectAdapter();
-        runSimpleFactory();
+//       runComponent();
+//       runDecorator();
+//       runClassAdapter();
+//       runObjectAdapter();
+//       runSimpleFactory();
+//       runObserver();
     }
 
     public static void runDecorator() {
@@ -230,5 +235,20 @@ public class Main {
             case "mark" -> new MarkTagFactoryMethod();
             default -> throw new IllegalArgumentException("Invalid tag: " + tag);
         };
+    }
+
+    public static void runObserver() {
+        TemperatureSensor sensor = new TemperatureSensor();
+
+        CelsiusDisplay celsiusDisplay = new CelsiusDisplay();
+        KelvinDisplay kelvinDisplay = new KelvinDisplay();
+        FahrenheitDisplay fahrenheitDisplay = new FahrenheitDisplay();
+
+        sensor.addObserver(celsiusDisplay);
+        sensor.addObserver(kelvinDisplay);
+        sensor.addObserver(fahrenheitDisplay);
+
+        // Ustawienie nowej temperatury
+        sensor.setTemperature(25.5);
     }
 }
